@@ -22,6 +22,18 @@ class Audio(object):
         self._devices = list()
         self._device = Device()
 
+        libalsa = libpulse = False
+
+        args = 'ffmpeg -version | grep -o "libalsa\|libpulse"'
+        popen = subprocess.Popen(args, shell=True,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        for line in popen.stdout:
+            if "alsa" in line:
+                libalsa = True
+            elif "pulse" in line:
+                libpulse = True
+
         args = 'pacmd list-sources'
         popen = subprocess.Popen(args, shell=True,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -34,7 +46,10 @@ class Audio(object):
                 device.name = line.split(':', 1)[1].strip()
 
             elif line.startswith('device.api = '):
-                device.api = line.split('=', 1)[1].strip().strip('"')
+                api = line.split('=', 1)[1].strip().strip('"')
+                if api == "alsa" and not libalsa and libpulse:
+                    api = "pulse"
+                device.api = api
 
             elif line.startswith('alsa.subdevice = '):
                 device.subdevice = line.split('=', 1)[1].strip().strip('"')
@@ -87,7 +102,8 @@ class Device(object):
     # =========================================================================
     @property
     def source(self):
-
+        if self.api == "pulse":
+            return '{deviceName}'.format(deviceName=self.name[1:-1])
         return 'plughw:{c},{s}'.format(c=self.card, s=self.subdevice)
 
     # =========================================================================

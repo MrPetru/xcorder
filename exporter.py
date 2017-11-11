@@ -27,6 +27,7 @@ class Exporter(object):
     # =========================================================================
     def start(self):
 
+        print self.args
         self.makeFileList()
         if not self._proc:
             self._proc = subprocess.Popen(self.args, shell=True,
@@ -66,6 +67,7 @@ class Exporter(object):
     def optionArgs(self):
 
         return '-f concat ' + \
+               '-safe 0 ' \
                '-i {i} '.format(i=self.fileList) + \
                '-codec copy ' + \
                '-y ' + \

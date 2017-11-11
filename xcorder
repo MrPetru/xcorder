@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/env python2
 # =============================================================================
 # Module: xcorder
 # Contacts: Edward Li (drawdeil@gmail.com)
