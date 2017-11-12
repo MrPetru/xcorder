@@ -15,6 +15,9 @@ import subprocess
 # =============================================================================
 # CLASSES
 # =============================================================================
+import os
+
+
 class Exporter(object):
 
     # =========================================================================
@@ -54,7 +57,7 @@ class Exporter(object):
 
         with open(self.fileList, 'w') as fileList:
             for segmentFile in segmentFiles:
-                fileList.write("file '{f}'\n".format(f=segmentFile))
+                fileList.write("file '{f}'\n".format(f=os.path.basename(segmentFile)))
 
     # =========================================================================
     @property
@@ -67,7 +70,6 @@ class Exporter(object):
     def optionArgs(self):
 
         return '-f concat ' + \
-               '-safe 0 ' \
                '-i {i} '.format(i=self.fileList) + \
                '-codec copy ' + \
                '-y ' + \

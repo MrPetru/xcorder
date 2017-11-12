@@ -22,17 +22,19 @@ class Audio(object):
         self._devices = list()
         self._device = Device()
 
-        libalsa = libpulse = False
-
-        args = 'ffmpeg -version | grep -o "libalsa\|libpulse"'
+        args = 'ffmpeg -formats -v 0'
         popen = subprocess.Popen(args, shell=True,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+        alsa = pulse = False
         for line in popen.stdout:
             if "alsa" in line:
-                libalsa = True
+                alsa = True
             elif "pulse" in line:
-                libpulse = True
+                pulse = True
+
+        if not alsa and not pulse:
+            raise Exception("available ffmpeg installation have not lasound or libpulse enabled")
 
         args = 'pacmd list-sources'
         popen = subprocess.Popen(args, shell=True,
@@ -47,7 +49,7 @@ class Audio(object):
 
             elif line.startswith('device.api = '):
                 api = line.split('=', 1)[1].strip().strip('"')
-                if api == "alsa" and not libalsa and libpulse:
+                if api == "alsa" and not alsa:
                     api = "pulse"
                 device.api = api
 
